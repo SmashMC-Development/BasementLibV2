@@ -12,7 +12,7 @@ jobs:
 
     strategy:
       matrix:
-        module: [core, animation, discord, pixelmon, placeholder, worldedit]
+        module: [core, animation, discord, pixelmon, placeholder]
 
     steps:
       - name: Checkout code
