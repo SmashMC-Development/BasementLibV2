@@ -55,6 +55,7 @@ jobs:
           echo "Deleting existing release..."
           release_id=$(gh release list | grep ${{ env.version }} | awk '{print $1}')
           if [ -n "$release_id" ]; then
+            echo "Deleting release $release_id..."
             gh release delete $release_id -y
           fi
         env:
