@@ -16,7 +16,7 @@ jobs:
         run: |
           echo "Parsing commit message..."
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MESSAGE" =~ version\(([a-zA-Z0-9_-]+)\):\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+          if [[ "$COMMIT_MESSAGE" =~ version\(([a-zA-Z0-9_-]+)\):\ ([0-9]+\.[0-9]+\.[0-9]+(-([a-zA-Z]+))?) ]]; then
             MODULE="${BASH_REMATCH[1]}"
             VERSION="${BASH_REMATCH[2]}"
             echo "Module to build: $MODULE"
@@ -75,7 +75,6 @@ jobs:
           else
             echo "No release found with version $VERSION"
           fi
-          ls -la ${{ env.module }}/build/libs/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
@@ -97,6 +96,6 @@ jobs:
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.release-jar.outputs.upload_url }}
-          asset_path: ${{ env.module }}/build/libs/*.jar
-          asset_name: ${{ env.module }}-${{ env.version }}.jar
+          asset_path: ${{ env.module }}/build/libs/basementlib_${{ env.module }}-${{ env.version }}.jar
+          asset_name: basementlib_${{ env.module }}-${{ env.version }}.jar
           asset_content_type: application/java-archive
