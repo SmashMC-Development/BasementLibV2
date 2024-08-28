@@ -56,8 +56,12 @@ jobs:
         id: grant-permission
         run: chmod +x ./gradlew
 
-      - name: Delete Existing Release
-        id: delete-release
+      - name: Build JAR
+        id: build-jar
+        run: ./gradlew :${{ env.module }}:clean :${{ env.module }}:build
+
+      - name: Delete Existing Release & Tagh
+        id: delete-release_tag
         run: |
           echo "Deleting existing release..."
           version=${{ steps.determine-module.outputs.version }}
@@ -65,23 +69,15 @@ jobs:
           if echo "$release_tags" | grep -q "^$version$"; then
             echo "Deleting release with version $version ..."
             gh release delete "$version" -y
+            echo "Deleting existing tag..."
+            git tag -d ${{ env.version }} || true
+            git push --delete origin ${{ env.version }} || true
           else
             echo "No release found with version $VERSION"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
-
-      - name: Build JAR
-        id: build-jar
-        run: ./gradlew :${{ env.module }}:clean :${{ env.module }}:build
-
-      - name: Delete Existing Tag
-        id: delete-tag
-        run: |
-          echo "Deleting existing tag..."
-          git tag -d ${{ env.version }} || true
-          git push --delete origin ${{ env.version }} || true
 
       - name: Release JAR
         id: release-jar
