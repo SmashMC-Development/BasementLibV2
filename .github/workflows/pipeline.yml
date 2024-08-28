@@ -43,6 +43,11 @@ jobs:
             exit 1
           fi
 
+      - name: Grant execute permission for gradlew
+        id: grant-permission
+        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        run: chmod +x ./gradlew
+
       - name: Build JAR
         id: build
         if: ${{ steps.determine-module.outputs.module == matrix.module }}
