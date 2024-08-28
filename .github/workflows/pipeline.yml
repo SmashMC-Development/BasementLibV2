@@ -12,20 +12,9 @@ jobs:
 
     strategy:
       matrix:
-        module: [core, animation, discord, pixelmon, placeholder]
+        include: []
 
     steps:
-      - name: Checkout code
-        id: checkout
-        uses: actions/checkout@v3
-
-      - name: Set up JDK 11
-        id: setup-java
-        uses: actions/setup-java@v3
-        with:
-          distribution: 'temurin'
-          java-version: '11'
-
       - name: Determine Module
         id: determine-module
         run: |
@@ -43,6 +32,27 @@ jobs:
             exit 1
           fi
 
+      - name: Add module to matrix
+        id: add-module
+        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        run: |
+          echo "::set-output name=matrix::{\"module\":\"${{ steps.determine-module.outputs.module }}\"}"
+          echo "module=${{ steps.determine-module.outputs.module }}" >> $GITHUB_ENV
+          echo "version=${{ steps.determine-module.outputs.version }}" >> $GITHUB_ENV
+
+      - name: Checkout code
+        id: checkout
+        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        id: setup-java
+        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
       - name: Grant execute permission for gradlew
         id: grant-permission
         if: ${{ steps.determine-module.outputs.module == matrix.module }}
@@ -54,32 +64,41 @@ jobs:
         run: |
           ./gradlew :${{ steps.determine-module.outputs.module }}:clean :${{ steps.determine-module.outputs.module }}:build
 
-      - name: Release JAR
+      - name: Delete Existing Release
+        id: delete-release
         if: ${{ steps.determine-module.outputs.module == matrix.module }}
-        id: create
+        run: |
+          echo "Deleting existing release..."
+          release_id=$(gh release list | grep ${{ steps.determine-module.outputs.version }} | awk '{print $1}')
+          if [ -n "$release_id" ]; then
+            gh release delete $release_id -y
+          fi
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Delete Existing Tag
+        id: delete-tag
+        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        run: |
+          echo "Deleting existing tag..."
+          git tag -d ${{ steps.determine-module.outputs.version }} || true
+          git push --delete origin ${{ steps.determine-module.outputs.version }} || true
+
+      - name: Release JAR
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ steps.determine-module.outputs.version }}
-          release_name: ${{ steps.determine-module.outputs.module }}-${{ steps.determine-module.outputs.version }}
-          body: "Release of ${{ steps.determine-module.outputs.module }} version ${{ steps.determine-module.outputs.version }}"
+          tag_name: ${{ matrix.version }}
+          release_name: ${{ matrix.module }}-${{ matrix.version }}
+          body: "Release of ${{ matrix.module }} version ${{ matrix.version }}"
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload JAR to Release
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
         uses: actions/upload-release-asset@v1
         with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ${{ steps.determine-module.outputs.module }}/build/libs/*.jar
-          asset_name: ${{ steps.determine-module.outputs.module }}-${{ steps.determine-module.outputs.version }}.jar
+          upload_url: ${{ steps.create.outputs.upload_url }}
+          asset_path: ${{ matrix.module }}/build/libs/*.jar
+          asset_name: ${{ matrix.module }}-${{ matrix.version }}.jar
           asset_content_type: application/java-archive
-
-      - name: Publish to GitHub Packages
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
-        id: publish
-        run: |
-          ./gradlew :${{ steps.determine-module.outputs.module }}:publish
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
