@@ -1,4 +1,4 @@
-name:  Build, Release & Publish JAR
+name: Build, Release & Publish JAR
 
 on:
   push:
@@ -9,10 +9,6 @@ jobs:
   build-and-publish:
     if: contains(github.event.head_commit.message, 'version(')
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        include: []
 
     steps:
       - name: Determine Module
@@ -27,49 +23,37 @@ jobs:
             echo "Version: $VERSION"
             echo "::set-output name=module::$MODULE"
             echo "::set-output name=version::$VERSION"
+            echo "module=$MODULE" >> $GITHUB_ENV
+            echo "version=$VERSION" >> $GITHUB_ENV
           else
             echo "Commit message does not match the expected pattern."
             exit 1
           fi
 
-      - name: Add module to matrix
-        id: add-module
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
-        run: |
-          echo "::set-output name=matrix::{\"module\":\"${{ steps.determine-module.outputs.module }}\"}"
-          echo "module=${{ steps.determine-module.outputs.module }}" >> $GITHUB_ENV
-          echo "version=${{ steps.determine-module.outputs.version }}" >> $GITHUB_ENV
-
       - name: Checkout code
-        id: checkout
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        if: ${{ steps.determine-module.outputs.module != '' }}
         uses: actions/checkout@v3
 
       - name: Set up JDK 11
-        id: setup-java
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        if: ${{ steps.determine-module.outputs.module != '' }}
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
 
       - name: Grant execute permission for gradlew
-        id: grant-permission
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        if: ${{ steps.determine-module.outputs.module != '' }}
         run: chmod +x ./gradlew
 
       - name: Build JAR
-        id: build
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
-        run: |
-          ./gradlew :${{ steps.determine-module.outputs.module }}:clean :${{ steps.determine-module.outputs.module }}:build
+        if: ${{ steps.determine-module.outputs.module != '' }}
+        run: ./gradlew :${{ env.module }}:clean :${{ env.module }}:build
 
       - name: Delete Existing Release
-        id: delete-release
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        if: ${{ steps.determine-module.outputs.module != '' }}
         run: |
           echo "Deleting existing release..."
-          release_id=$(gh release list | grep ${{ steps.determine-module.outputs.version }} | awk '{print $1}')
+          release_id=$(gh release list | grep ${{ env.version }} | awk '{print $1}')
           if [ -n "$release_id" ]; then
             gh release delete $release_id -y
           fi
@@ -77,28 +61,29 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete Existing Tag
-        id: delete-tag
-        if: ${{ steps.determine-module.outputs.module == matrix.module }}
+        if: ${{ steps.determine-module.outputs.module != '' }}
         run: |
           echo "Deleting existing tag..."
-          git tag -d ${{ steps.determine-module.outputs.version }} || true
-          git push --delete origin ${{ steps.determine-module.outputs.version }} || true
+          git tag -d ${{ env.version }} || true
+          git push --delete origin ${{ env.version }} || true
 
       - name: Release JAR
+        if: ${{ steps.determine-module.outputs.module != '' }}
         uses: actions/create-release@v1
         with:
-          tag_name: ${{ matrix.version }}
-          release_name: ${{ matrix.module }}-${{ matrix.version }}
-          body: "Release of ${{ matrix.module }} version ${{ matrix.version }}"
+          tag_name: ${{ env.version }}
+          release_name: ${{ env.module }}-${{ env.version }}
+          body: "Release of ${{ env.module }} version ${{ env.version }}"
           draft: false
           prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload JAR to Release
+        if: ${{ steps.determine-module.outputs.module != '' }}
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create.outputs.upload_url }}
-          asset_path: ${{ matrix.module }}/build/libs/*.jar
-          asset_name: ${{ matrix.module }}-${{ matrix.version }}.jar
+          asset_path: ${{ env.module }}/build/libs/*.jar
+          asset_name: ${{ env.module }}-${{ env.version }}.jar
           asset_content_type: application/java-archive
