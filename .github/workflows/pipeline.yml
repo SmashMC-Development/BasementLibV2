@@ -3,16 +3,12 @@ name:  Build, Release & Publish JAR
 on:
   push:
     branches:
-      - master
+      - gitActions2
 
 jobs:
-  build-and-publish:
-    if: contains(github.event.head_commit.message, 'version(')
+  build-and-publish-core:
+    if: contains(github.event.head_commit.message, 'version(core):')
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        module: [core, animation, discord, pixelmon, placeholder, worldedit]
 
     steps:
       - name: Checkout code
@@ -31,12 +27,9 @@ jobs:
         run: |
           echo "Parsing commit message..."
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
-          if [[ "$COMMIT_MESSAGE" =~ version\(([^)]+)\):\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
-            MODULE="${BASH_REMATCH[1]}"
+          if [[ "$COMMIT_MESSAGE" =~ version\(([a-zA-Z0-9_-]+)\):\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             VERSION="${BASH_REMATCH[2]}"
-            echo "Module to build: $MODULE"
             echo "Version: $VERSION"
-            echo "::set-output name=module::$MODULE"
             echo "::set-output name=version::$VERSION"
           else
             echo "Commit message does not match the expected pattern."
@@ -54,8 +47,8 @@ jobs:
         uses: actions/create-release@v1
         with:
           tag_name: ${{ steps.determine-module.outputs.version }}
-          release_name: ${{ steps.determine-module.outputs.module }}-${{ steps.determine-module.outputs.version }}
-          body: "Release of ${{ steps.determine-module.outputs.module }} version ${{ steps.determine-module.outputs.version }}"
+          release_name: "core-"${{ steps.determine-module.outputs.version }}
+          body: "Release of core version" ${{ steps.determine-module.outputs.version }}
           draft: false
           prerelease: false
         env:
