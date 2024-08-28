@@ -79,17 +79,6 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
 
-      - name: Upload JAR to Release
-        id: upload-jar
-        uses: actions/upload-release-asset@v1
-        with:
-          upload_url: ${{ steps.release-jar.outputs.upload_url }}
-          asset_path: ${{ env.module }}/build/libs/basementlib_${{ env.module }}-${{ env.version }}.jar
-          asset_name: basementlib_${{ env.module }}-${{ env.version }}.jar
-          asset_content_type: application/java-archive
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Release JAR
         id: release-jar
         uses: actions/create-release@v1
@@ -99,5 +88,16 @@ jobs:
           body: "Release of ${{ env.module }} version ${{ env.version }}"
           draft: false
           prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload JAR to Release
+        id: upload-jar
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.release-jar.outputs.upload_url }}
+          asset_path: ${{ env.module }}/build/libs/basementlib_${{ env.module }}-${{ env.version }}.jar
+          asset_name: basementlib_${{ env.module }}-${{ env.version }}.jar
+          asset_content_type: application/java-archive
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
