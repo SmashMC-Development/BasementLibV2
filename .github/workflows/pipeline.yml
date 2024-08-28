@@ -75,6 +75,7 @@ jobs:
           else
             echo "No release found with version $VERSION"
           fi
+          ls -la ${{ env.module }}/build/libs/
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
