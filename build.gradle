@@ -1,0 +1,37 @@
+plugins {
+    id 'base'
+    id 'eclipse'
+    id 'idea'
+    id 'java'
+    id 'maven-publish'
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'eclipse'
+    apply plugin: 'idea'
+    
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(11)
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    repositories {
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+        mavenCentral()
+    }
+    
+    dependencies {
+        compileOnly 'org.projectlombok:lombok:1.18.26'
+        testCompileOnly 'org.projectlombok:lombok:1.18.26'
+        annotationProcessor 'org.projectlombok:lombok:1.18.26'
+        testAnnotationProcessor 'org.projectlombok:lombok:1.18.26'
+    }
+}
+
+task buildAll {
+    dependsOn subprojects*.build
+}
