@@ -60,6 +60,7 @@ jobs:
         id: delete-release
         run: |
           echo "Deleting existing release..."
+          VERSION=${{ steps.determine-module.outputs.version }}
           gh release list --json tagName
           echo "Version: $VERSION"
           release_id=$(gh release list --json tagName | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .id')
