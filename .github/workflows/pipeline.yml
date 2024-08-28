@@ -45,6 +45,7 @@ jobs:
 
       - name: Build JAR
         id: build
+        if: ${{ steps.determine-module.outputs.module == matrix.module }}
         run: |
           cd ${{ steps.determine-module.outputs.module }}
           ./gradlew clean build
@@ -62,6 +63,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload JAR to Release
+        if: ${{ steps.determine-module.outputs.module == matrix.module }}
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create_release.outputs.upload_url }}
@@ -70,6 +72,7 @@ jobs:
           asset_content_type: application/java-archive
 
       - name: Publish to GitHub Packages
+        if: ${{ steps.determine-module.outputs.module == matrix.module }}
         id: publish
         run: |
           cd ${{ steps.determine-module.outputs.module }}
