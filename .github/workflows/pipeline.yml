@@ -3,7 +3,7 @@ name:  Build, Release & Publish JAR
 on:
   push:
     branches:
-      - master
+      - gitActions2
 
 jobs:
   build-and-publish:
