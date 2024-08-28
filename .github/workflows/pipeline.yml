@@ -99,3 +99,5 @@ jobs:
           asset_path: ${{ env.module }}/build/libs/basementlib_${{ env.module }}-${{ env.version }}.jar
           asset_name: basementlib_${{ env.module }}-${{ env.version }}.jar
           asset_content_type: application/java-archive
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
