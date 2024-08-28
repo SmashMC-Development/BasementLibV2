@@ -1,0 +1,78 @@
+name:  Build, Release & Publish JAR
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  build-and-publish:
+    if: contains(github.event.head_commit.message, 'version(')
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        module: [core, animation, discord, pixelmon, placeholder, worldedit]
+
+    steps:
+      - name: Checkout code
+        id: checkout
+        uses: actions/checkout@v3
+
+      - name: Set up JDK 11
+        id: setup-java
+        uses: actions/setup-java@v3
+        with:
+          distribution: 'temurin'
+          java-version: '11'
+
+      - name: Determine Module
+        id: determine-module
+        run: |
+          echo "Parsing commit message..."
+          COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
+          if [[ "$COMMIT_MESSAGE" =~ version\(([^)]+)\):\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
+            MODULE="${BASH_REMATCH[1]}"
+            VERSION="${BASH_REMATCH[2]}"
+            echo "Module to build: $MODULE"
+            echo "Version: $VERSION"
+            echo "::set-output name=module::$MODULE"
+            echo "::set-output name=version::$VERSION"
+          else
+            echo "Commit message does not match the expected pattern."
+            exit 1
+          fi
+
+      - name: Build JAR
+        id: build
+        run: |
+          cd ${{ steps.determine-module.outputs.module }}
+          ./gradlew clean build
+
+      - name: Release JAR
+        id: create
+        uses: actions/create-release@v1
+        with:
+          tag_name: ${{ steps.determine-module.outputs.version }}
+          release_name: ${{ steps.determine-module.outputs.module }}-${{ steps.determine-module.outputs.version }}
+          body: "Release of ${{ steps.determine-module.outputs.module }} version ${{ steps.determine-module.outputs.version }}"
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload JAR to Release
+        uses: actions/upload-release-asset@v1
+        with:
+          upload_url: ${{ steps.create_release.outputs.upload_url }}
+          asset_path: ${{ steps.determine-module.outputs.module }}/build/libs/*.jar
+          asset_name: ${{ steps.determine-module.outputs.module }}-${{ steps.determine-module.outputs.version }}.jar
+          asset_content_type: application/java-archive
+
+      - name: Publish to GitHub Packages
+        id: publish
+        run: |
+          cd ${{ steps.determine-module.outputs.module }}
+          ./gradlew publish
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
