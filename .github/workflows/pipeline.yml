@@ -64,10 +64,9 @@ jobs:
         id: delete-release
         run: |
           echo "Deleting existing release..."
-          release_id=$(gh release list | grep "$VERSION" | awk '{print $1}')
-          
+          release_id=$(gh release list --json id,tagName | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .id')
           if [ -n "$release_id" ]; then
-            echo "Deleting release $release_id..."
+            echo "Deleting release with ID $release_id..."
             gh release delete "$release_id" -y
           else
             echo "No release found with version $VERSION"
