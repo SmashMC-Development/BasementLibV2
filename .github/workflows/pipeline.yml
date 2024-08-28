@@ -30,27 +30,38 @@ jobs:
             exit 1
           fi
 
+      - name: Validate Module
+        run: |
+          MODULE="${{ steps.determine-module.outputs.module }}"
+          ALLOWED_MODULES=("animation" "core" "discord" "pixelmon" "placeholder" "worldedit")
+          if [[ ! " ${ALLOWED_MODULES[@]} " =~ " ${MODULE} " ]]; then
+            echo "Module $MODULE is not allowed. Exiting."
+            exit 1
+          else
+            echo "Module $MODULE is allowed. Continuing."
+          fi
+
       - name: Checkout code
-        if: ${{ steps.determine-module.outputs.module != '' }}
+        id: checkout
         uses: actions/checkout@v3
 
       - name: Set up JDK 11
-        if: ${{ steps.determine-module.outputs.module != '' }}
+        id: setup-jdk
         uses: actions/setup-java@v3
         with:
           distribution: 'temurin'
           java-version: '11'
 
       - name: Grant execute permission for gradlew
-        if: ${{ steps.determine-module.outputs.module != '' }}
+        id: grant-permission
         run: chmod +x ./gradlew
 
       - name: Build JAR
-        if: ${{ steps.determine-module.outputs.module != '' }}
+        id: build-jar
         run: ./gradlew :${{ env.module }}:clean :${{ env.module }}:build
 
       - name: Delete Existing Release
-        if: ${{ steps.determine-module.outputs.module != '' }}
+        id: delete-release
         run: |
           echo "Deleting existing release..."
           release_id=$(gh release list | grep ${{ env.version }} | awk '{print $1}')
@@ -62,14 +73,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Delete Existing Tag
-        if: ${{ steps.determine-module.outputs.module != '' }}
+        id: delete-tag
         run: |
           echo "Deleting existing tag..."
           git tag -d ${{ env.version }} || true
           git push --delete origin ${{ env.version }} || true
 
       - name: Release JAR
-        if: ${{ steps.determine-module.outputs.module != '' }}
+        id: release-jar
         uses: actions/create-release@v1
         with:
           tag_name: ${{ env.version }}
@@ -81,7 +92,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Upload JAR to Release
-        if: ${{ steps.determine-module.outputs.module != '' }}
+        id: upload-jar
         uses: actions/upload-release-asset@v1
         with:
           upload_url: ${{ steps.create.outputs.upload_url }}
