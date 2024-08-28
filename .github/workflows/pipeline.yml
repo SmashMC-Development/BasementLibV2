@@ -3,12 +3,16 @@ name:  Build, Release & Publish JAR
 on:
   push:
     branches:
-      - gitActions2
+      - master
 
 jobs:
-  build-and-publish-core:
-    if: contains(github.event.head_commit.message, 'version(core):')
+  build-and-publish:
+    if: contains(github.event.head_commit.message, 'version(')
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        module: [core, animation, discord, pixelmon, placeholder, worldedit]
 
     steps:
       - name: Checkout code
@@ -29,7 +33,9 @@ jobs:
           COMMIT_MESSAGE="${{ github.event.head_commit.message }}"
           if [[ "$COMMIT_MESSAGE" =~ version\(([a-zA-Z0-9_-]+)\):\ ([0-9]+\.[0-9]+\.[0-9]+) ]]; then
             VERSION="${BASH_REMATCH[2]}"
+            echo "Module to build: $MODULE"
             echo "Version: $VERSION"
+            echo "::set-output name=module::$MODULE"
             echo "::set-output name=version::$VERSION"
           else
             echo "Commit message does not match the expected pattern."
