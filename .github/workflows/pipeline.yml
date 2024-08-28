@@ -16,7 +16,7 @@ jobs:
           C_MESSAGE="${{ github.event.head_commit.message }}"
           MODULE=$(echo "$C_MESSAGE" | grep -oP '^\((\w+)\)' | tr -d '()')
           
-          if [ -z "$M" ]; then
+          if [ -z "$MODULE" ]; then
             echo "no module found, stopping"
             exit 1
           else
