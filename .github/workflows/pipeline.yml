@@ -56,14 +56,12 @@ jobs:
         id: grant-permission
         run: chmod +x ./gradlew
 
-      - name: Build JAR
-        id: build-jar
-        run: ./gradlew :${{ env.module }}:clean :${{ env.module }}:build
-
       - name: Delete Existing Release
         id: delete-release
         run: |
           echo "Deleting existing release..."
+          gh release list --json tagName
+          echo gh release list --json tagName
           release_id=$(gh release list --json tagName | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION) | .id')
           if [ -n "$release_id" ]; then
             echo "Deleting release with ID $release_id..."
@@ -74,6 +72,10 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         shell: bash
+
+      - name: Build JAR
+        id: build-jar
+        run: ./gradlew :${{ env.module }}:clean :${{ env.module }}:build
 
       - name: Delete Existing Tag
         id: delete-tag
