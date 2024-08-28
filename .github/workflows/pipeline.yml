@@ -7,7 +7,6 @@ on:
 
 jobs:
   build-and-publish:
-    if: contains(github.event.head_commit.message, 'version(')
     runs-on: ubuntu-latest
 
     steps:
