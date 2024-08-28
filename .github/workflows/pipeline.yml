@@ -64,13 +64,17 @@ jobs:
         id: delete-release
         run: |
           echo "Deleting existing release..."
-          release_id=$(gh release list | grep ${{ env.version }} | awk '{print $1}')
+          release_id=$(gh release list | grep "$VERSION" | awk '{print $1}')
+          
           if [ -n "$release_id" ]; then
             echo "Deleting release $release_id..."
-            gh release delete $release_id -y
+            gh release delete "$release_id" -y
+          else
+            echo "No release found with version $VERSION"
           fi
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        shell: bash
 
       - name: Delete Existing Tag
         id: delete-tag
