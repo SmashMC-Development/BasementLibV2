@@ -64,10 +64,10 @@ jobs:
           gh release list --json tagName
           echo "Version: $VERSION ..."
           a=$(gh release list --json tagName)
-          b=$(gh release list --json tagName | jq -r --arg VERSION "$VERSION" '.[])
-          c=$(gh release list --json tagName | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION))
           echo "A: $a ..."
+          b=$(gh release list --json tagName | jq -r --arg VERSION "$VERSION" '.[])
           echo "B: $b ..."
+          c=$(gh release list --json tagName | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION))
           echo "C: $c ..."
           release_id=$(gh release list --json tagName | jq -r --arg VERSION "$VERSION" '.[] | select(.tagName == $VERSION))
           echo "ID: $release_id ..."
