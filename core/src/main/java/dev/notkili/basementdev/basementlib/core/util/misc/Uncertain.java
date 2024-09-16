@@ -228,7 +228,6 @@ public class Uncertain<T> {
      * @throws E The exception thrown by the {@link ThrowingReturningConsumer} task
      * @author NotKili
      */
-    @Nullable
     public <D, E extends Exception> D ifPresentOrElseReturn(ThrowingReturningConsumer<D, T, E> task, Supplier<D> defaultValue) throws E {
         if (isPresent()) {
             return task.accept(this.value);
