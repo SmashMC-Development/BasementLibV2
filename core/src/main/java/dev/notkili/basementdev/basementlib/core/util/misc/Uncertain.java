@@ -216,26 +216,6 @@ public class Uncertain<T> {
             return (Uncertain<D>) Uncertain.empty();
         }
     }
-    
-    /**
-     * Executes the provided {@link ThrowingReturningConsumer} task if the {@link Uncertain} is present, returning the result.
-     * If absent, returns the provided default value.
-     * @param task The {@link ThrowingReturningConsumer} task to execute if the {@link Uncertain} is present
-     * @param defaultValue The default value to return if {@link Uncertain} is empty
-     * @param <D> The return type of the {@link ThrowingReturningConsumer} task
-     * @param <E> The exception type that can be thrown by the {@link ThrowingReturningConsumer} task
-     * @return The result of the {@link ThrowingReturningConsumer} task or the default value if {@link Uncertain} is empty
-     * @throws E The exception thrown by the {@link ThrowingReturningConsumer} task
-     * @author NotKili
-     */
-    @Nullable
-    public <D, E extends Exception> D ifPresentOrElseReturn(ThrowingReturningConsumer<D, T, E> task, D defaultValue) throws E {
-        if (isPresent()) {
-            return task.accept(this.value);
-        } else {
-            return defaultValue;
-        }
-    }
 
     /**
      * Executes the provided {@link ThrowingReturningConsumer} task if the {@link Uncertain} is present, returning the result.
