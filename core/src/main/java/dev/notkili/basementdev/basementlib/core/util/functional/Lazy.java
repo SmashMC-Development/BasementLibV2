@@ -17,6 +17,7 @@ import java.util.concurrent.locks.ReentrantLock;
  * - {@link #mutableConcurrent(ThrowingSupplier)} for concurrent safe initialization, supports invalidation<br>
  * @param <T> The type of the lazily computed value
  * @author NotKili
+ * @since 1.0.0
  */
 public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
     /**
@@ -24,6 +25,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * If any exception is thrown during computation, an empty {@link Uncertain} is returned.
      * @return The value wrapped in an {@link Uncertain}
      * @author NotKili
+     * @since 1.0.0
      */
     Uncertain<T> getSafe();
     
@@ -31,6 +33,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * Checks if the value has been initialized.
      * @return {@code true} if the value has been initialized, {@code false} otherwise
      * @author NotKili
+     * @since 1.0.0
      */
     boolean isInitialized();
 
@@ -42,11 +45,13 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * @param <T> The type of the lazily computed value
      * @see Lazy
      * @author NotKili 
+     * @since 1.0.0
      */
     interface MutableLazy<T> extends Lazy<T> {
         /**
          * Invalidates the value, forcing it to be recomputed on the next {@link #get()} or {@link #getSafe()} call.
          * @author NotKili
+         * @since 1.0.0
          */
         void invalidate();
         
@@ -54,6 +59,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
          * Sets the value to a new value.
          * @param value The new value
          * @author NotKili
+         * @since 1.0.0
          */
         void set(T value);
     }
@@ -66,6 +72,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * @param <T> The type of the lazily computed value
      * @see Fast
      * @author NotKili
+     * @since 1.0.0
      */
     static <T> Lazy<T> of(ThrowingSupplier<T, ? extends Exception> supplier)
     {
@@ -80,6 +87,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * @param <T> The type of the lazily computed value
      * @see Concurrent
      * @author NotKili
+     * @since 1.0.0
      */
     static <T> Lazy<T> concurrent(ThrowingSupplier<T, ? extends Exception> supplier)
     {
@@ -94,6 +102,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * @param <T> The type of the lazily computed value
      * @see Mutable
      * @author NotKili
+     * @since 1.0.0
      */
     static <T> MutableLazy<T> mutable(ThrowingSupplier<T, ? extends Exception> supplier)
     {
@@ -108,6 +117,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * @param <T> The type of the lazily computed value
      * @see MutableConcurrent
      * @author NotKili
+     * @since 1.0.0
      */
     static <T> MutableConcurrent<T> mutableConcurrent(ThrowingSupplier<T, ? extends Exception> supplier)
     {
@@ -118,6 +128,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * Immutable, single-threaded implementation of {@link Lazy}. <br>
      * @param <T> The type of the lazily computed value
      * @author NotKili
+     * @since 1.0.0
      */
     final class Fast<T> implements Lazy<T>
     {
@@ -160,6 +171,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * Immutable, concurrent safe implementation of {@link Lazy}. <br>
      * @param <T> The type of the lazily computed value
      * @author NotKili
+     * @since 1.0.0
      */
     final class Concurrent<T> implements Lazy<T>
     {
@@ -211,6 +223,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * Mutable, single-threaded implementation of {@link MutableLazy}. <br>
      * @param <T> The type of the lazily computed value
      * @author NotKili
+     * @since 1.0.0
      */
     final class Mutable<T> implements MutableLazy<T>
     {
@@ -260,6 +273,7 @@ public interface Lazy<T> extends ThrowingSupplier<T, Exception> {
      * Mutable, concurrent safe implementation of {@link MutableLazy}. <br>
      * @param <T> The type of the lazily computed value
      * @author NotKili
+     * @since 1.0.0
      */
     final class MutableConcurrent<T> implements MutableLazy<T> {
         private final Lock lock = new ReentrantLock();
