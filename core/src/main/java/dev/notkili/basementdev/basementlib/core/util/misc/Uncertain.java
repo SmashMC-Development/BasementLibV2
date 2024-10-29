@@ -1,14 +1,42 @@
 package dev.notkili.basementdev.basementlib.core.util.misc;
 
-import dev.notkili.basementdev.basementlib.core.util.functional.ThrowingConsumer;
-import dev.notkili.basementdev.basementlib.core.util.functional.ThrowingReturningConsumer;
+import dev.notkili.basementdev.basementlib.core.util.functional.lambda.function.unsafe.Function;
+import dev.notkili.basementdev.basementlib.core.util.functional.lambda.supplier.unsafe.Supplier;
+import dev.notkili.basementdev.basementlib.core.util.functional.lambda.consumer.safe.ThrowingConsumer;
+import dev.notkili.basementdev.basementlib.core.util.functional.lambda.function.safe.ThrowingFunction;
 
 import javax.annotation.Nullable;
 import java.util.NoSuchElementException;
-import java.util.function.Function;
 import java.util.function.Predicate;
-import java.util.function.Supplier;
 
+/**
+ * A container object which may or may not contain a non-{@code null} value.
+ * If a value is present, {@link #isPresent()} returns {@code true}. If no
+ * value is present, the object is considered <i>empty</i> and
+ * {@link #isPresent()} returns {@code false}.
+ *
+ * <p>Additional methods that depend on the presence or absence of a contained value are provided, such as: <br>
+ * - {@link #orElse(Object)} <br>
+ * - {@link #orElse(Supplier)} <br>
+ * - {@link #filter(Predicate)} <br>
+ * - {@link #map(Function)} <br>
+ * - {@link #update(Function)} <br>
+ * - {@link #ifPresent(ThrowingConsumer)} <br>
+ * - {@link #ifPresentOrElse(ThrowingConsumer, Runnable)} <br>
+ * - {@link #ifPresentReturn(ThrowingFunction)} <br>
+ * - {@link #ifPresentReturnSafe(ThrowingFunction)} <br>
+ * - {@link #ifPresentOrElseReturn(ThrowingFunction, Supplier)} <br>
+ * - {@link #ifPresentOrElseReturnSafe(ThrowingFunction, Supplier)} <br>
+ *
+ * @apiNote
+ * In comparison to {@link java.util.Optional}, this class is designed to be more flexible and provide more utility methods.
+ * Serialization is supported for this class, allowing it to be used in a wider range of applications. <br>
+ * The main use case of this is still to be used as a return type for methods where there is a clear need to differentiate between a {@code result} and {@code no result}
+ *
+ * @param <T> the type of value
+ * @author NotKili
+ * @since 1.0.0
+ */
 public class Uncertain<T> {
     private static final Uncertain<?> EMPTY = new Uncertain<>(null);
 
@@ -27,6 +55,8 @@ public class Uncertain<T> {
      * Creates a new empty {@link Uncertain} of type V
      * @return An EMPTY {@link Uncertain}
      * @param <T> Type
+     * @author NotKili
+     * @since 1.0.0
      */
     @SuppressWarnings("all")
     public static <T> Uncertain<T> empty() {
@@ -39,22 +69,28 @@ public class Uncertain<T> {
      * @param value The value the {@link Uncertain} is supposed to contain
      * @return An {@link Uncertain} containing the provided value. CAN be empty
      * @param <T> Type
+     * @author NotKili
+     * @since 1.0.0
      */
     public static <T> Uncertain<T> of(T value) {
         return new Uncertain<>(value);
     }
 
     /**
-     * Checks if the {@link Uncertain} contains a value
-     * @return TRUE if the {@link Uncertain} contains a value, FALSE otherwise
+     * Checks if this {@link Uncertain} contains a value
+     * @return {@code true} if this {@link Uncertain} contains a value, {@code false} otherwise
+     * @author NotKili
+     * @since 1.0.0
      */
     public boolean isPresent() {
         return this.value != null;
     }
 
     /**
-     * Checks if the {@link Uncertain} is empty
-     * @return TRUE if the {@link Uncertain} is empty, FALSE otherwise
+     * Checks if this {@link Uncertain} is empty
+     * @return {@code true} if this {@link Uncertain} is empty, {@code false} otherwise
+     * @author NotKili
+     * @since 1.0.0
      */
     public boolean isMissing() {
         return this.value == null;
@@ -64,6 +100,8 @@ public class Uncertain<T> {
      * Returns the value of the {@link Uncertain} if it is present, otherwise throws a {@link NoSuchElementException}
      * @return The value of the {@link Uncertain}
      * @throws NoSuchElementException If the {@link Uncertain} is empty
+     * @author NotKili
+     * @since 1.0.0
      */
     public T get() throws NoSuchElementException {
         if (this.value == null) {
@@ -74,9 +112,11 @@ public class Uncertain<T> {
     }
 
     /**
-     * Returns the value of the {@link Uncertain} if it is present, otherwise returns the provided default value
-     * @param defaultValue The default value to return if the {@link Uncertain} is empty
-     * @return The value of the {@link Uncertain} if it is present, otherwise the provided default value
+     * Returns the value of this {@link Uncertain} if it is present, otherwise returns the provided default value
+     * @param defaultValue The default value to return if this {@link Uncertain} is empty
+     * @return The value of this {@link Uncertain} if it is present, otherwise the provided default value
+     * @author NotKili
+     * @since 1.0.0
      */
     public T orElse(T defaultValue) {
         if (isMissing()) {
@@ -87,9 +127,11 @@ public class Uncertain<T> {
     }
 
     /**
-     * Returns the value of the {@link Uncertain} if it is present, otherwise returns the value returned from the provided {@link Supplier}
-     * @param defaultValue The {@link Supplier} to get the default value from if the {@link Uncertain} is empty
-     * @return The value of the {@link Uncertain} if it is present, otherwise the value returned from the provided {@link Supplier}
+     * Returns the value of this {@link Uncertain} if it is present, otherwise invokes the provided {@link Supplier} and returns the result.
+     * @param defaultValue The {@link Supplier} to invoke if this {@link Uncertain} is empty
+     * @return The value of this {@link Uncertain} if it is present, otherwise the result from invoking the provided {@link Supplier}
+     * @author NotKili
+     * @since 1.0.0
      */
     public T orElse(Supplier<T> defaultValue) {
         if (isMissing()) {
@@ -100,8 +142,11 @@ public class Uncertain<T> {
     }
 
     /**
-     * Returns the value of the {@link Uncertain}, which can be null in case the {@link Uncertain} is empty
-     * @return The value of the {@link Uncertain}, which can be null
+     * Returns the value of this {@link Uncertain} without checking if it is present or not. <br>
+     * <b>Important: </b>The return value can be {@code null}
+     * @return The value of this {@link Uncertain}, which can be null
+     * @author NotKili
+     * @since 1.0.0
      */
     @Nullable
     public T unsafe() {
@@ -109,9 +154,11 @@ public class Uncertain<T> {
     }
 
     /**
-     * Updates the value of the {@link Uncertain} if it is present, otherwise does nothing
-     * @param modifier The function to modify the value with
-     * @return The updated {@link Uncertain}
+     * Updates the value of this {@link Uncertain} if it is present, otherwise does nothing
+     * @param modifier The {@link Function} to modify the value with
+     * @return The same {@link Uncertain}
+     * @author NotKili
+     * @since 1.0.0
      */
     public Uncertain<T> update(Function<T, T> modifier) {
         if (isMissing()) {
@@ -123,10 +170,12 @@ public class Uncertain<T> {
     }
 
     /**
-     * Maps the value of the {@link Uncertain} to a new value of type {@link V} if it is present, otherwise returns an empty {@link Uncertain}
-     * @param mapper The function to map the value with
+     * Maps the value of this {@link Uncertain} to a new value of type {@link V} if it is present, otherwise returns an empty {@link Uncertain}
+     * @param mapper The {@link Function} to map the value with
      * @return A new {@link Uncertain} containing the mapped value, or an empty {@link Uncertain}
      * @param <V> The new type
+     * @author NotKili
+     * @since 1.0.0
      */
     public <V> Uncertain<V> map(Function<T, V> mapper) {
         if (isMissing()) {
@@ -137,9 +186,11 @@ public class Uncertain<T> {
     }
 
     /**
-     * Matches the value of the {@link Uncertain} to a {@link Predicate} filter, returning the {@link Uncertain} if the filter matches, otherwise an empty {@link Uncertain}
-     * @param filter The filter to match the value against
-     * @return The {@link Uncertain} if the filter matches, otherwise an empty {@link Uncertain}
+     * Matches the value of this {@link Uncertain} to a {@link Predicate} filter, returning the same {@link Uncertain} if the filter matches, otherwise an empty {@link Uncertain}
+     * @param filter The {@link Predicate} to match the value against
+     * @return The same {@link Uncertain} if the filter matches, otherwise an empty {@link Uncertain}
+     * @author NotKili
+     * @since 1.0.0
      */
     @SuppressWarnings("all")
     public Uncertain<T> filter(Predicate<T> filter) {
@@ -153,10 +204,12 @@ public class Uncertain<T> {
     }
 
     /**
-     * Executes the provided {@link ThrowingConsumer} task if the {@link Uncertain} is present, otherwise does nothing
-     * @param task The {@link ThrowingConsumer} task to execute if the {@link Uncertain} is present
-     * @param <E> The exception type which can be thrown by the task
-     * @throws E The exception thrown by the task
+     * Executes the provided {@link ThrowingConsumer} if the {@link Uncertain} is present, otherwise does nothing
+     * @param task The {@link ThrowingConsumer} to execute if the {@link Uncertain} is present
+     * @param <E> The exception type which can be thrown by the {@link ThrowingConsumer}
+     * @throws E The exception thrown by the {@link ThrowingConsumer}
+     * @author NotKili
+     * @since 1.0.0
      */
     public <E extends Exception> void ifPresent(ThrowingConsumer<T, E> task) throws E {
         if (isPresent()) {
@@ -165,12 +218,13 @@ public class Uncertain<T> {
     }
 
     /**
-     * Executes the provided {@link ThrowingConsumer} task if the {@link Uncertain} is present, otherwise executes the provided {@link Runnable} task
-     * @param task The {@link ThrowingConsumer} task to execute if the {@link Uncertain} is present
-     * @param runnable The {@link Runnable} task to execute if the {@link Uncertain} is empty
-     * @param <E> The exception type which can be thrown by the task
-     * @throws E The exception thrown by the task
+     * Executes the provided {@link ThrowingConsumer} if the {@link Uncertain} is present, otherwise executes the provided {@link Runnable}
+     * @param task The {@link ThrowingConsumer} to execute if the {@link Uncertain} is present
+     * @param runnable The {@link Runnable} to execute if the {@link Uncertain} is empty
+     * @param <E> The exception type which can be thrown by the {@link ThrowingConsumer}
+     * @throws E The exception thrown by the {@link ThrowingConsumer}
      * @author NotKili
+     * @since 1.0.0
      */
     public <E extends Exception> void ifPresentOrElse(ThrowingConsumer<T, E> task, Runnable runnable) throws E {
         if (isPresent()) {
@@ -181,75 +235,79 @@ public class Uncertain<T> {
     }
 
     /**
-     * Executes the provided {@link ThrowingReturningConsumer} task if the {@link Uncertain} is present, returning the result. Returns null if empty.
-     * @param task The {@link ThrowingReturningConsumer} task to execute if the {@link Uncertain} is present
-     * @param <D> The return type of the task
-     * @param <E> The exception type which can be thrown by the task
-     * @return The result of the task or null if {@link Uncertain} is empty
-     * @throws E The exception thrown by the task
+     * Executes the provided {@link ThrowingFunction} if the {@link Uncertain} is present, returning the result. Returns null if empty.
+     * @param task The {@link ThrowingFunction} task to execute if the {@link Uncertain} is present
+     * @param <R> The return type of the {@link ThrowingFunction}
+     * @param <E> The exception type which can be thrown by the {@link ThrowingFunction}
+     * @return The result of the {@link ThrowingFunction} or null if {@link Uncertain} is empty
+     * @throws E The exception thrown by the {@link ThrowingFunction}
      * @author NotKili
+     * @since 1.0.0
      */
     @Nullable
-    public <D, E extends Exception> D ifPresentReturn(ThrowingReturningConsumer<D, T, E> task) throws E {
+    public <R, E extends Exception> R ifPresentReturn(ThrowingFunction<T, R, E> task) throws E {
         if (isPresent()) {
-            return task.accept(this.value);
+            return task.apply(this.value);
         } else {
             return null;
         }
     }
 
     /**
-     * Executes the provided {@link ThrowingReturningConsumer} task if the {@link Uncertain} is present, returning the result wrapped in a new {@link Uncertain}. 
+     * Executes the provided {@link ThrowingFunction} if the {@link Uncertain} is present, returning the result wrapped in a new {@link Uncertain}. 
      * Returns an empty {@link Uncertain} if absent.
-     * @param task The {@link ThrowingReturningConsumer} task to execute if the {@link Uncertain} is present
-     * @param <D> The return type of the {@link ThrowingReturningConsumer} task
-     * @param <E> The exception type which can be thrown by the {@link ThrowingReturningConsumer} task
-     * @return The result of the {@link ThrowingReturningConsumer} task wrapped in {@link Uncertain} or an empty {@link Uncertain} if absent
-     * @throws E The exception thrown by the {@link ThrowingReturningConsumer} task
+     * @param task The {@link ThrowingFunction} to execute if the {@link Uncertain} is present
+     * @param <R> The return type of the {@link ThrowingFunction}
+     * @param <E> The exception type which can be thrown by the {@link ThrowingFunction}
+     * @return The result of the {@link ThrowingFunction} wrapped in {@link Uncertain} or an empty {@link Uncertain} if absent
+     * @throws E The exception thrown by the {@link ThrowingFunction}
      * @author NotKili
+     * @since 1.0.0
      */
     @SuppressWarnings("all")
-    public <D, E extends Exception> Uncertain<D> ifPresentReturnOpt(ThrowingReturningConsumer<D, T, E> task) throws E {
+    public <R, E extends Exception> Uncertain<R> ifPresentReturnSafe(ThrowingFunction<T, R, E> task) throws E {
         if (isPresent()) {
-            return Uncertain.of(task.accept(this.value));
+            return Uncertain.of(task.apply(this.value));
         } else {
-            return (Uncertain<D>) Uncertain.empty();
+            return (Uncertain<R>) Uncertain.empty();
         }
     }
 
     /**
-     * Executes the provided {@link ThrowingReturningConsumer} task if the {@link Uncertain} is present, returning the result.
-     * If absent, returns the provided {@link Supplier} default value.
-     * @param task The {@link ThrowingReturningConsumer} task to execute if the {@link Uncertain} is present
+     * Executes the provided {@link ThrowingFunction} if the {@link Uncertain} is present, returning the result.
+     * If absent, invokes the provided {@link Supplier} and returns the result.
+     * @param task The {@link ThrowingFunction} to execute if the {@link Uncertain} is present
      * @param defaultValue The fallback {@link Supplier} if {@link Uncertain} is empty
-     * @param <D> The return type of the {@link ThrowingReturningConsumer} task
-     * @param <E> The exception type which can be thrown by the {@link ThrowingReturningConsumer} task
-     * @return The result of the {@link ThrowingReturningConsumer} task or the {@link Supplier} value if {@link Uncertain} is empty
-     * @throws E The exception thrown by the {@link ThrowingReturningConsumer} task
+     * @param <R> The return type of the {@link ThrowingFunction}
+     * @param <E> The exception type which can be thrown by the {@link ThrowingFunction}
+     * @return The result of the {@link ThrowingFunction} or the result of invoking the {@link Supplier} if {@link this} is empty
+     * @throws E The exception thrown by the {@link ThrowingFunction}
      * @author NotKili
+     * @since 1.0.0
      */
-    public <D, E extends Exception> D ifPresentOrElseReturn(ThrowingReturningConsumer<D, T, E> task, Supplier<D> defaultValue) throws E {
+    public <R, E extends Exception> R ifPresentOrElseReturn(ThrowingFunction<T, R, E> task, Supplier<R> defaultValue) throws E {
         if (isPresent()) {
-            return task.accept(this.value);
+            return task.apply(this.value);
         } else {
             return defaultValue.get();
         }
     }
 
     /**
-     * Executes the provided {@link ThrowingReturningConsumer} task if the {@link Uncertain} is present, returning the result wrapped in {@link Uncertain}.
-     * If absent, returns the provided {@link Supplier} value wrapped in {@link Uncertain}.
-     * @param task The {@link ThrowingReturningConsumer} task to execute if the {@link Uncertain} is present
-     * @param defaultValue The fallback {@link Supplier} if {@link Uncertain} is empty
-     * @param <D> The return type of the {@link ThrowingReturningConsumer} task
-     * @param <E> The exception type which can be thrown by the {@link ThrowingReturningConsumer} task
-     * @return The result of the {@link ThrowingReturningConsumer} task wrapped in a {@link Uncertain} or the {@link Supplier} value wrapped in a {@link Uncertain} if absent
-     * @throws E The exception thrown by the {@link ThrowingReturningConsumer} task
+     * Executes the provided {@link ThrowingFunction} if the {@link Uncertain} is present, returning the result wrapped in {@link Uncertain}.
+     * If absent, invokes the provided {@link Supplier} and returns the result wrapped in {@link Uncertain}.
+     * @param task The {@link ThrowingFunction} to execute if the {@link Uncertain} is present
+     * @param defaultValue The fallback {@link Supplier} to use if {@link Uncertain} is empty
+     * @param <R> The return type of the {@link ThrowingFunction}
+     * @param <E> The exception type which can be thrown by the {@link ThrowingFunction}
+     * @return The result of the {@link ThrowingFunction} or the result of {@link Supplier}, both wrapped in a {@link Uncertain} if absent
+     * @throws E The exception thrown by the {@link ThrowingFunction}
      * @author NotKili
+     * @since 1.0.0
      */
-    public <D, E extends Exception> Uncertain<D> ifPresentOrElseReturnOpt(ThrowingReturningConsumer<D, T, E> task, Supplier<D> defaultValue) throws E {
+    public <R, E extends Exception> Uncertain<R> ifPresentOrElseReturnSafe(ThrowingFunction<T, R, E> task, Supplier<R> defaultValue) throws E {
         if (isPresent()) {
-            return Uncertain.of(task.accept(this.value));
+            return Uncertain.of(task.apply(this.value));
         } else {
             return Uncertain.of(defaultValue.get());
         }
