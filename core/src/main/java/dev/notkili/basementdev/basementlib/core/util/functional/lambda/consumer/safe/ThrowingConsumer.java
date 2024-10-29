@@ -8,6 +8,7 @@ import dev.notkili.basementdev.basementlib.core.util.functional.lambda.consumer.
  * @param <T1> The type of the input to the operation
  * @param <E> The type of the exception that can be thrown
  * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface ThrowingConsumer<T1, E extends Exception> {
@@ -16,6 +17,7 @@ public interface ThrowingConsumer<T1, E extends Exception> {
      * @param t The input argument
      * @throws E The exception that can be thrown
      * @author NotKili
+     * @since 1.0.0
      */
     void accept(T1 t) throws E;
 }

@@ -10,6 +10,7 @@ import dev.notkili.basementdev.basementlib.core.util.functional.lambda.consumer.
  * @param <T3> The type of the third input to the operation
  * @param <T4> The type of the fourth input to the operation
  * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface QuadConsumer<T1, T2, T3, T4> {
@@ -20,6 +21,7 @@ public interface QuadConsumer<T1, T2, T3, T4> {
      * @param t3 The third input argument
      * @param t4 The fourth input argument
      * @author NotKili
+     * @since 1.0.0
      */
     void accept(T1 t1, T2 t2, T3 t3, T4 t4);
 }

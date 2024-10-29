@@ -10,6 +10,7 @@ import dev.notkili.basementdev.basementlib.core.util.functional.lambda.function.
  * @param <R> The type of the result of the function
  * @param <E> The type of the exception that can be thrown
  * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface ThrowingBiFunction<T1, T2, R, E extends Exception> {
@@ -20,6 +21,7 @@ public interface ThrowingBiFunction<T1, T2, R, E extends Exception> {
      * @return The function result
      * @throws E The exception that can be thrown
      * @author NotKili
+     * @since 1.0.0
      */
     R apply(T1 t1, T2 t2) throws E;
 }

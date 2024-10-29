@@ -9,6 +9,7 @@ import dev.notkili.basementdev.basementlib.core.util.functional.lambda.consumer.
  * @param <T2> The type of the second input to the operation
  * @param <T3> The type of the third input to the operation
  * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface TriConsumer<T1, T2, T3> {
@@ -18,6 +19,7 @@ public interface TriConsumer<T1, T2, T3> {
      * @param t2 The second input argument
      * @param t3 The third input argument
      * @author NotKili
+     * @since 1.0.0
      */
     void accept(T1 t1, T2 t2, T3 t3);
 }

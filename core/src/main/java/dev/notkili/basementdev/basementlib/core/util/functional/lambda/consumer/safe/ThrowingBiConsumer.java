@@ -8,7 +8,8 @@ import dev.notkili.basementdev.basementlib.core.util.functional.lambda.consumer.
  * @param <T1> The type of the first input to the operation
  * @param <T2> The type of the second input to the operation
  * @param <E> The type of the exception that can be thrown
- * @author NotKili 
+ * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface ThrowingBiConsumer<T1, T2, E extends Exception> {
@@ -18,6 +19,7 @@ public interface ThrowingBiConsumer<T1, T2, E extends Exception> {
      * @param t2 The second input argument
      * @throws E The exception that can be thrown
      * @author NotKili
+     * @since 1.0.0
      */
     void accept(T1 t1, T2 t2) throws E;
 }

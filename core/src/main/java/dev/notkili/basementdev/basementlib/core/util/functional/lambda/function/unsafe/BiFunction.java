@@ -9,6 +9,7 @@ import dev.notkili.basementdev.basementlib.core.util.functional.lambda.function.
  * @param <T2> The type of the second argument to the function
  * @param <R> The type of the result of the function
  * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface BiFunction<T1, T2, R> {
@@ -18,6 +19,7 @@ public interface BiFunction<T1, T2, R> {
      * @param t2 The second function argument
      * @return The function result
      * @author NotKili
+     * @since 1.0.0
      */
     R apply(T1 t1, T2 t2);
 }

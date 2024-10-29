@@ -7,6 +7,7 @@ import dev.notkili.basementdev.basementlib.core.util.functional.lambda.consumer.
  * Unlike {@link ThrowingConsumer}, this operation can not throw a checked exception.
  * @param <T1> The type of the input to the operation
  * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface Consumer<T1> {
@@ -14,6 +15,7 @@ public interface Consumer<T1> {
      * Performs this operation on the given arguments.
      * @param t1 The input argument
      * @author NotKili
+     * @since 1.0.0
      */
     void accept(T1 t1);
 }

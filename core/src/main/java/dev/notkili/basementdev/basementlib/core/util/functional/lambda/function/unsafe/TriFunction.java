@@ -8,6 +8,7 @@ package dev.notkili.basementdev.basementlib.core.util.functional.lambda.function
  * @param <T3> The type of the third argument to the function
  * @param <R> The type of the result of the function
  * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface TriFunction<T1, T2, T3, R> {
@@ -18,6 +19,7 @@ public interface TriFunction<T1, T2, T3, R> {
      * @param t3 The third function argument
      * @return The function result
      * @author NotKili
+     * @since 1.0.0
      */
     R apply(T1 t1, T2 t2, T3 t3);
 }

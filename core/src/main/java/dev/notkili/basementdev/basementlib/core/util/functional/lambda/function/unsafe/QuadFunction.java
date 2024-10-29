@@ -9,6 +9,7 @@ package dev.notkili.basementdev.basementlib.core.util.functional.lambda.function
  * @param <T4> The type of the fourth argument to the function
  * @param <R> The type of the result of the function
  * @author NotKili
+ * @since 1.0.0
  */
 @FunctionalInterface
 public interface QuadFunction<T1, T2, T3, T4, R> {
@@ -20,6 +21,7 @@ public interface QuadFunction<T1, T2, T3, T4, R> {
      * @param t4 The fourth function argument
      * @return The function result
      * @author NotKili
+     * @since 1.0.0
      */
     R apply(T1 t1, T2 t2, T3 t3, T4 t4);
 }
